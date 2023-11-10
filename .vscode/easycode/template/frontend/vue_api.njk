@@ -1,0 +1,36 @@
+import { http } from '@/utils/http/axios'
+
+/**
+ * @description: {{className}}
+ */
+export function get{{className}}(params: any) {
+  return http.request({
+    url: '/demo/{{className.toLowerCase()}}/page',
+    method: 'get',
+    params
+  })
+}
+
+export function post{{className}}(params: any) {
+  return http.request({
+    url: '/demo/{{className.toLowerCase()}}',
+    method: 'post',
+    params
+  })
+}
+
+export function put{{className}}(params: any) {
+  return http.request({
+    url: '/demo/{{className.toLowerCase()}}',
+    method: 'put',
+    params
+  })
+}
+
+export function del{{className}}(params: any) {
+  return http.request({
+    url: '/demo/{{className.toLowerCase()}}',
+    method: 'del',
+    params
+  })
+}

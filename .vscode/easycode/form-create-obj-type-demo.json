@@ -1,0 +1,71 @@
+{
+    "rule": [
+        {
+            "type": "input",
+            "field": "mcr1mj0x2xeju",
+            "title": "Test",
+            "info": "",
+            "_fc_drag_tag": "input",
+            "hidden": false,
+            "display": true,
+            "props": {
+                "type": "textarea"
+            }
+        },
+        {
+            "type": "inputNumber",
+            "field": "rpo1mj0x2yqs1",
+            "title": "Counter",
+            "info": "",
+            "_fc_drag_tag": "inputNumber",
+            "hidden": false,
+            "display": true
+        },
+        {
+            "type": "radio",
+            "field": "6xg1mj0x34qd8",
+            "title": "Radio",
+            "info": "",
+            "effect": {
+                "fetch": ""
+            },
+            "options": [
+                {
+                    "value": "1",
+                    "label": "选项1"
+                },
+                {
+                    "value": "2",
+                    "label": "选项2"
+                }
+            ],
+            "_fc_drag_tag": "radio",
+            "hidden": false,
+            "display": true
+        },
+        {
+            "type": "span",
+            "title": "Text",
+            "native": false,
+            "children": [
+                "这是一段文字"
+            ],
+            "_fc_drag_tag": "span",
+            "hidden": false,
+            "display": true
+        }
+    ],
+    "option": {
+        "form": {
+            "inline": false,
+            "labelPosition": "right",
+            "size": "medium",
+            "labelWidth": "125px",
+            "hideRequiredAsterisk": false,
+            "showMessage": true,
+            "inlineMessage": false
+        },
+        "submitBtn": true,
+        "resetBtn": false
+    }
+}

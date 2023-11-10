@@ -1,0 +1,189 @@
+<template>
+  <div class="container">
+    <div
+      class="right w-full h-full flex flex-col enter-x transition-all duration-300"
+      :style="{ paddingLeft: active ? '240px' : '0' }"
+    >
+      <div class="w-full py-23px px-20px">
+        <div class='w-full flex flex-wrap'>
+          {% for property in properties %}
+          {% if property.propertyName != 'id' %}
+          <div class='flex mb-20px ml-10px'>
+            <div class='w-100px leading-34px text-right mr-10px whitespace-nowrap overflow-auto'>{{property.comment}}</div>
+            {% if property.dataType == 'datetime' %}
+            <n-date-picker
+              class="!w-260px h-34px"
+              v-model:formatted-value="queryData.{{property.propertyName}}"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              type="daterange"
+              clearable
+            />
+            {% elseif property.dataType == 'tinyint' %}
+              <n-select v-model:value="queryData.{{property.propertyName}}" :options="options" />
+            {% else %}
+            <n-input
+              v-model:value="queryData.{{property.propertyName}}"
+              clearable
+              class="!w-260px h-34px"
+              type="text"
+              placeholder="请输入"
+              @keyup.enter="findQuery(true)"
+            />
+            {%endif%}
+          </div>
+          {%endif%}
+        {% endfor %}
+        </div>
+
+        <div class='text-right'>
+          <n-button type="info" @click="createItem"> 新增 </n-button>
+        </div>
+      </div>
+
+      <n-data-table
+        :remote="true"
+        class="flex-1"
+        :columns="columns"
+        :data="tableData.data"
+        :pagination="pagination"
+        :bordered="true"
+        :bottom-bordered="true"
+        :striped="true"
+        flex-height
+      />
+    </div>
+
+    <Dialog
+      v-model="showModal"
+      :title="coe"
+      :active-row="activeRow"
+      @sub="subCreate"
+    />
+
+  </div>  
+</template>
+
+<script lang="ts" setup>
+import router from '@/router'
+import { TableItem, createColumns, options } from './{{className|lowerCaseFristOne}}'
+import Dialog from './{{className|lowerCaseFristOne}}Dialog.vue'
+import rule from './{{className|lowerCaseFristOne}}.schema.json'
+import { fApi, value, option } from './{{className|lowerCaseFristOne}}.schema'
+import { get{{className}}, del{{className}} } from '@/api/{{className}}/{{className|lowerCaseFristOne}}'
+
+const queryData = reactive({
+{% for property in properties %}
+  {% if property.dataType == 'datetime' %}
+  {{property.propertyName}}: '',
+  {% else %}
+  {{property.propertyName}}: '',
+  {%endif%}
+{% endfor %}
+})
+const active = ref(false)
+const showStatus = ref(false)
+const showDel = ref(false)
+const coe = ref('新增')
+
+const createItem = () => {
+  coe.value = '新增'
+  showModal.value = !showModal.value
+}
+
+let activeRow = ref<TableItem>({
+{% for property in properties %}
+{% if (property.propertyType | lowerCaseFristOne) == 'string' %}
+  {{ property.propertyName }}: '',
+{% elseif (property.propertyType | lowerCaseFristOne) == 'date' %}
+  {{ property.propertyName }}: '',
+{% else %}
+  {{ property.propertyName }}: 0,
+{%endif%}
+{% endfor %}
+})
+const showModal = ref(false)
+
+const subCreate = data => {
+  console.log(data)
+  findQuery()
+}
+
+
+const tableData = reactive<{ data: TableItem[] }>({ data: [] })
+const columns = createColumns({
+  activeRow,
+  toggleStatus(row: TableItem) {
+    activeRow.value = row
+    showStatus.value = !showStatus.value
+  },
+  config(row: TableItem) {
+    activeRow.value = row
+    coe.value = '编辑'
+    showModal.value = !showModal.value
+  },
+  del(row: TableItem) {
+    activeRow.value = row
+    showDel.value = !showDel.value
+  }
+})
+const pagination = reactive({
+  page: 1,
+  pageSize: 20,
+  itemCount: 0,
+  showSizePicker: true,
+  pageSizes: [10, 20, 30],
+  prefix({ itemCount }) {
+    return `共 ${itemCount} 条`
+  },
+  onChange: (page: number) => {
+    pagination.page = page
+    findQuery()
+  },
+  onUpdatePageSize: (pageSize: number) => {
+    pagination.pageSize = pageSize
+    pagination.page = 1
+    findQuery()
+  }
+})
+
+const getAppPage = async params => {
+  let res = await get{{className}}(params)
+  pagination.page = res.page
+  pagination.pageSize = res.size
+  pagination.itemCount = res.total
+  tableData.data = res.list.map(item => {
+    item.status = item.mark === '1' ? true : false
+    return item
+  })
+}
+const findQuery = (bool?: boolean) => {
+  if (bool) {
+    pagination.page = 1
+  }
+  for (var key in queryData) {
+    if (['createTime', 'updTime'].includes(key) && queryData[key]?.length) {
+      queryData[key+'Begin'] = time.value[0]
+      queryData[key+'End'] = time.value[1]
+    }
+  }
+  getAppPage({
+    page: pagination.page,
+    size: pagination.pageSize,
+    ...queryData
+  })
+}
+findQuery()
+</script>
+
+<script lang="ts">
+  export default {
+    name: '{{className}}',
+  };
+</script>
+
+<style scoped lang="less">
+  .container {
+    height: calc(100% - 40px);
+    padding: 0 20px 20px 20px;
+  }
+</style>

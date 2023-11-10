@@ -1,0 +1,84 @@
+import { NButton, NSwitch } from 'naive-ui'
+import type { DataTableColumns } from 'naive-ui'
+import { h, Ref } from 'vue'
+
+export type TableItem = {
+{% for property in properties %}
+{% if (property.propertyType | lowerCaseFristOne) == 'string' %}
+  {{ property.propertyName }}: string
+{% elseif (property.propertyType | lowerCaseFristOne) == 'date' %}
+  {{ property.propertyName }}: string
+{% else %}
+  {{ property.propertyName }}: number
+{%endif%}
+{% endfor %}
+}
+
+export const options = [
+  {
+    label: '是',
+    value: true
+  },
+  {
+    label: '否',
+    value: false
+  }
+]
+
+{# {% for property in properties %}
+{{property.comment}}
+ {{property.dataType}}
+ {{property.propertyType}}
+{% endfor %} #}
+
+export const createColumns = ({
+  activeRow,
+  toggleStatus,
+  config,
+  del
+}: {
+  activeRow: Ref<TableItem>
+  toggleStatus: (row: TableItem) => void
+  config: (row: TableItem) => void
+  del: (row: TableItem) => void
+}): DataTableColumns<TableItem> => {
+  return [
+{% for property in properties %}
+{
+  align: 'center',
+  title: '{{property.comment}}',
+  key: '{{ property.propertyName | lowerCaseFristOne }}'
+},
+{% endfor %}
+    {
+      align: 'center',
+      width: 230,
+      title: '操作',
+      key: 'option',
+      render(row) {
+        return h('div', {}, [
+          h(
+            NButton,
+            {
+              class: 'px-10px',
+              text: true,
+              type: 'primary',
+              onClick: () => config(row)
+            },
+            { default: () => '编辑' }
+          ),
+          h(
+            NButton,
+            {
+              class: 'px-10px',
+              text: true,
+              type: 'primary',
+              onClick: () => del(row)
+            },
+            { default: () => '删除' }
+          )
+        ])
+      }
+    }
+  ]
+}

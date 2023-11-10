@@ -1,0 +1,147 @@
+<template>
+  <LayoutDialog
+    v-model="value"
+    :title="title"
+    class="w-710px"
+    @submit="submit"
+  >
+    <div class="flex mt-20px justify-center">
+      <div class="left w-7/10">
+        <n-form
+          ref="formRef"
+          class="jus"
+          :label-width="80"
+          :model="formValue"
+          :rules="rules"
+        >
+        {% for property in properties %}
+          {%if property.propertyName != 'id' 
+            and property.propertyName != 'creatTime'
+            and property.propertyName != 'updTime' %}
+          <n-form-item label="{{property.comment}}">
+            {%if property.propertyType == 'Date' %}
+            <n-date-picker
+              v-model:formatted-value="formValue.{{property.propertyName}}"
+              value-format="yyyy-MM-dd"
+              type="date"
+              clearable
+            />
+            {%elseif property.propertyType == 'Integer' %}
+            <n-select v-model:value="formValue.{{property.propertyName}}" :options="options" />
+            {% else %}
+            <n-input
+              v-model:value="formValue.{{property.propertyName}}"
+              clearable
+              placeholder="请输入"
+            />
+            {%endif%}
+          </n-form-item>
+
+          {%endif%}
+        {% endfor %}
+        </n-form>
+      </div>
+    </div>
+  </LayoutDialog>
+</template>
+
+<script lang="ts" setup>
+import { FormInst, FormItemRule } from 'naive-ui'
+import LayoutDialog from '@/components/common/LayoutDialog.vue'
+import { TableItem, options } from './{{className|lowerCaseFristOne}}'
+import { post{{className}}, put{{className}} } from '@/api/{{className}}/{{className|lowerCaseFristOne}}'
+
+const formValue = ref({
+{% for property in properties %}
+  {%if property.propertyName != 'id' and property.propertyName != 'createBy' and property.propertyName != 'creatTime' and property.propertyName != 'updTime' %}
+    {% if (property.propertyType | lowerCaseFristOne) == 'date' %}
+  {{property.propertyName}}: '2022-10-16',
+    {%else%}
+  {{property.propertyName}}: '',
+    {%endif%}
+  {%endif%}
+{% endfor %}
+})
+
+const value = computed({
+  get() {
+    return props.modelValue
+  },
+  set(bool) {
+    emit('update:modelValue', bool)
+  }
+})
+const props = defineProps<{
+  modelValue: boolean
+  title: string
+  activeRow: TableItem
+}>()
+const emit = defineEmits(['update:modelValue', 'sub'])
+watch(
+  () => props.modelValue,
+  bool => {
+    emit('update:modelValue', bool)
+    if (!bool) {
+      formValue.value = {
+      {% for property in properties %}
+        {%if property.propertyName != 'id' and property.propertyName != 'createBy' and property.propertyName != 'creatTime' and property.propertyName != 'updTime' %}
+          {% if (property.propertyType | lowerCaseFristOne) == 'date' %}
+        {{property.propertyName}}: '2022-10-16',
+          {% elseif property.propertyType == 'Integer' %}
+        {{property.propertyName}}: true,
+          {%else%}
+        {{property.propertyName}}: '',
+          {%endif%}
+        {%endif%}
+      {% endfor %}
+      }
+    }
+  }
+)
+watch(
+  () => props.activeRow,
+  data => {
+    formValue.value = data
+  }
+)
+
+const rules = {
+  pid: {
+    required: true,
+    validator(rule: FormItemRule, value: string) {
+      if (!value) {
+        return new Error('请选择所属组织')
+      }
+      return true
+    },
+    trigger: ['update', 'change', 'blur']
+  },
+  name: {
+    required: true,
+    message: '请输入组织名称',
+    trigger: ['input', 'blur']
+  }
+}
+const formRef = ref<FormInst | null>(null)
+const handleValidateClick = (e: MouseEvent) => {
+  e.preventDefault()
+  formRef.value?.validate(async errors => {
+    console.log(formValue)
+    if (!errors) {
+      let res =
+        props.title === '创建'
+          ? await post{{className}}(unref(formValue))
+          : await put{{className}}(unref(formValue))
+      emit('update:modelValue', false)
+      emit('sub', formValue.value.name)
+      // window.$message?.success('Valid')
+    } else {
+      window.$message?.error('请完成校验字段')
+    }
+  })
+}
+const submit = e => {
+  handleValidateClick(e)
+  console.log('tj', formValue)
+}
+</script>

@@ -1,0 +1,21 @@
+{
+  "i18n-ally.localesPaths": [
+    "locales",
+    "locales/lang"
+  ],
+  "sqltools.connections": [
+    {
+      "mysqlOptions": {
+        "authProtocol": "default"
+      },
+      "previewLimit": 50,
+      "server": "192.168.10.24",
+      "port": 3306,
+      "driver": "MySQL",
+      "name": "tpl",
+      "database": "lhcz_5a",
+      "username": "admin",
+      "password": "Lhcz_22811Adm"
+    }
+  ]
+}
